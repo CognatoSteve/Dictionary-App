@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="author" content="Serena Lamonato">
+    <meta name="description" content="English Dictionary App using API">
+    <link rel="stylesheet" href="style.css">
+    <title>Dictionary App</title>
+</head>
+
+<body>
+    <audio id="sound"></audio>
+    <div class="card">
+        <div class="search">
+            <input type="text" id="search-word" placeholder="Type the word here..">
+            <button id="search-btn">Search</button>
+        </div>
+        <div class="result">
+            <div class="word">
+                <h3>Word</h3>
+                <button id="audio-btn"><img id='audio-ico' src="audio.png"></button>
+
+            </div>
+            <div class="details">
+                <p class="part-of-speech">exclamation</p>
+                <p class="phonetic">/həˈləʊ/</p>
+            </div>
+            <p class="word-meaning">used as a greeting or to begin a phone conversation.</p>
+            <p class="word-example">hello there, Katie!</p>
+            <p></p>
+        </div>
+        <div class="error">
+            <h3>Couldn't Find The Word</h3>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <script>
+        const apiURL = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+        const searchBox = document.querySelector('.search input')
+        const searchBtn = document.querySelector('.search button')
+        const sound = document.querySelector("#sound");
+        const result = document.querySelector('.result');
+
+        searchBtn.addEventListener('click', () => {
+            fetch(apiURL + searchBox.value)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    result.style.display = 'block';
+                    document.querySelector('.error').style.display = 'none';
+
+                    sound.src = `${data[0].phonetics[`${1 || 0}`].audio || ''}`;
+                    document.querySelector('.word h3').textContent = data[0].word;
+                    document.querySelector('.part-of-speech').textContent = data[0].meanings[0].partOfSpeech;
+                    document.querySelector('.phonetic').textContent = ` ${data[0].phonetics[0].text}`;
+                    document.querySelector('.word-meaning').textContent = data[0].meanings[0].definitions[0].definition;
+                    document.querySelector('.word-example').textContent = ` ${data[0].meanings[0].definitions[0].example || ''}`;
+                })
+                .catch(() => {
+                    document.querySelector('.error').style.display = 'block';
+                    result.style.display = 'none';
+                });
+        })
+
+        document.querySelector('#audio-btn').addEventListener('click', () => {
+            try {
+                sound.play();
+            } catch {
+                alert('cannot found audio');
+            }
+        })
+
+        sound.addEventListener("play", () => {
+           document.querySelector('#audio-ico').classList.add('played');
+           
+        });
+
+        sound.addEventListener("ended", () => {
+            document.querySelector('#audio-ico').classList.remove('played');
+        });
+
+
+    </script>
+</body>
